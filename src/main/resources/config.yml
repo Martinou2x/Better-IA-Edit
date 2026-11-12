@@ -1,0 +1,23 @@
+rotation-fix:
+  enabled: true
+  commands:
+    - paste
+
+restore-light: true
+
+region-writes-per-tick: 20000
+
+fix-blocks-per-tick: 50000
+fix-max-blocks: 5000000
+
+messages:
+  prefix: "<dark_gray>[</dark_gray><gradient:#ff9cb4:#c39bff>Better-IA-Edit</gradient><dark_gray>]</dark_gray>"
+  usage: "<prefix> <gray>Usage: <white>/<label> fix<gray>, <white>/<label> info<gray>, <white>/<label> reload"
+  info: "<prefix> <gray>Version <white><version></white>, <white><blocks></white> custom blocks cached, <white><pending></white> pending region writes, engine <white><engine></white>."
+  reloaded: "<prefix> <green>Configuration reloaded, <white><blocks></white> custom blocks cached."
+  players-only: "<prefix> <red>Only players can use this command."
+  no-selection: "<prefix> <red>Make a WorldEdit selection first."
+  selection-too-big: "<prefix> <red>The selection is too big (more than <max> blocks)."
+  fix-running: "<prefix> <red>A repair is already running for you."
+  fix-started: "<prefix> <gray>Scanning <white><blocks></white> blocks..."
+  fix-done: "<prefix> <green>Done: <white><fixed></white> custom blocks registered again, <white><cleaned></white> stale entries removed."

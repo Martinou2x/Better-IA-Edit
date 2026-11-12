@@ -1,13 +1,16 @@
 package com.epicplayera10.iaedit.listeners;
 
+import com.epicplayera10.iaedit.IAEdit;
 import com.epicplayera10.iaedit.utils.IACache;
 import dev.lone.itemsadder.api.Events.ItemsAdderLoadDataEvent;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 
 public class ItemsAdderListener implements Listener {
-    @EventHandler
+
+    @EventHandler(priority = EventPriority.MONITOR)
     public void onLoad(ItemsAdderLoadDataEvent event) {
-        IACache.init();
+        IACache.init(IAEdit.instance().getLogger());
     }
 }

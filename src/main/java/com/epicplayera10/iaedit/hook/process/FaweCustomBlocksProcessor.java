@@ -7,12 +7,14 @@ import com.fastasyncworldedit.core.queue.IChunkGet;
 import com.fastasyncworldedit.core.queue.IChunkSet;
 import com.sk89q.worldedit.extent.Extent;
 import com.sk89q.worldedit.world.block.BlockState;
+import com.sk89q.worldedit.world.block.BlockTypes;
 import com.sk89q.worldedit.world.block.BlockTypesCache;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.jetbrains.annotations.Nullable;
 
 public class FaweCustomBlocksProcessor implements IBatchProcessor {
+
     private final World world;
 
     public FaweCustomBlocksProcessor(World world) {
@@ -21,56 +23,50 @@ public class FaweCustomBlocksProcessor implements IBatchProcessor {
 
     @Override
     public IChunkSet processSet(IChunk chunk, IChunkGet get, IChunkSet set) {
-        return null;
+        return set;
     }
 
     @Override
     public void postProcess(IChunk chunk, IChunkGet get, IChunkSet set) {
         int bx = chunk.getX() << 4;
         int bz = chunk.getZ() << 4;
-
-        // Remove existing custom blocks
         for (int layer = get.getMinSectionPosition(); layer <= get.getMaxSectionPosition(); layer++) {
-            if (!set.hasSection(layer)) {
-                continue;
-            }
-
-            // loadIfPresent shouldn't be null if set.hasSection(layer) is true
+            if (!set.hasSection(layer)) continue;
             char[] blocksSet = set.loadIfPresent(layer);
             char[] blocksGet = get.loadIfPresent(layer);
-
-            // Account for negative layers
+            if (blocksSet == null) continue;
             int by = layer << 4;
             for (int y = 0, index = 0; y < 16; y++) {
                 int yy = y + by;
                 for (int z = 0; z < 16; z++) {
-                    int zz = z + bz;
                     for (int x = 0; x < 16; x++, index++) {
-                        final int rawStateSet = blocksSet[index];
-                        if (rawStateSet == BlockTypesCache.ReservedIDs.__RESERVED__) continue;
-                        final int rawStateGet = blocksGet[index];
-
-                        // If they are the same, skip
-                        if (rawStateSet == rawStateGet) continue;
-
-                        int xx = bx + x;
-
-                        BlockState stateSet = BlockTypesCache.states[rawStateSet];
-                        BlockState stateGet = BlockTypesCache.states[rawStateGet];
-
-                        Location location = new Location(this.world, xx, yy, zz);
-
-                        CustomBlocksWorldEditUtils.processBlock(location, stateSet, stateGet, set.getTile(x, yy, z), get.getTile(x, yy, z));
+                        processIndex(blocksSet, blocksGet, index, bx, bz, x, yy, z, set);
                     }
                 }
             }
         }
     }
 
+    @SuppressWarnings("removal")
+    private void processIndex(char[] blocksSet, char[] blocksGet, int index, int bx, int bz, int x, int y, int z, IChunkSet set) {
+        int rawStateSet = blocksSet[index];
+        if (rawStateSet == BlockTypesCache.ReservedIDs.__RESERVED__) return;
+        int rawStateGet = blocksGet == null ? BlockTypesCache.ReservedIDs.AIR : blocksGet[index];
+        BlockState stateSet = BlockTypesCache.states[rawStateSet];
+        if (rawStateSet == rawStateGet && stateSet.getBlockType() != BlockTypes.SPAWNER) return;
+        BlockState stateGet = BlockTypesCache.states[rawStateGet];
+        Location location = new Location(this.world, bx + x, y, bz + z);
+        try {
+            CustomBlocksWorldEditUtils.processBlock(location, stateSet, stateGet, set.getTile(x, y, z));
+        } catch (RuntimeException ignored) {
+            return;
+        }
+    }
+
     @Nullable
     @Override
     public Extent construct(Extent child) {
-        return new WorldEditCustomBlocksExtent(child, this.world);
+        return new WorldEditCustomBlocksExtent(child, this.world, null);
     }
 
     @Override
@@ -79,7 +75,6 @@ public class FaweCustomBlocksProcessor implements IBatchProcessor {
         try {
             return ProcessorScope.READING_BLOCKS;
         } catch (NoSuchFieldError ex) {
-            // Fallback for older versions of FAWE
             return ProcessorScope.READING_SET_BLOCKS;
         }
     }

@@ -4,10 +4,11 @@ plugins {
 }
 
 group = 'com.epicplayera10'
-version = '1.1.1'
+version = '2.0.0'
 
 repositories {
     mavenCentral()
+    mavenLocal()
     maven {
         name = "papermc-repo"
         url = "https://repo.papermc.io/repository/maven-public/"
@@ -17,10 +18,8 @@ repositories {
         url = "https://oss.sonatype.org/content/groups/public/"
     }
 
-    // FAWE
     maven { url = uri("https://maven.enginehub.org/repo/") }
 
-    // ItemsAdder
     maven {
         url 'https://maven.devs.beer/'
     }
@@ -29,22 +28,16 @@ repositories {
 dependencies {
     compileOnly "io.papermc.paper:paper-api:1.21.4-R0.1-SNAPSHOT"
 
-    //compileOnly("com.sk89q.worldedit:worldedit-core:7.3.0")
-    //compileOnly("com.sk89q.worldedit:worldedit-bukkit:7.3.0")
-
     implementation(platform("com.intellectualsites.bom:bom-newest:1.52"))
     compileOnly("com.fastasyncworldedit:FastAsyncWorldEdit-Core:2.13.0")
     compileOnly("com.fastasyncworldedit:FastAsyncWorldEdit-Bukkit:2.13.0") { transitive = false }
 
-    compileOnly 'dev.lone:api-itemsadder:4.0.10'
+    compileOnly 'beer.devs:itemsadder-api:4.0.18-beta-9'
 
-    implementation "org.bstats:bstats-bukkit:3.0.2"
 }
 
 shadowJar {
     archiveFileName = "${project.name}-${project.version}.jar"
-
-    relocate("org.bstats", "com.epicplayera10.iaedit.libs.org.bstats")
 }
 
 assemble.dependsOn(shadowJar)

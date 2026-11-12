@@ -1,8 +1,21 @@
-name: IA-Edit
+name: Better-IA-Edit
 version: '${version}'
 main: com.epicplayera10.iaedit.IAEdit
-api-version: 1.16
-authors: [EpicPlayerA10]
+api-version: '1.20'
+authors: [EpicPlayerA10, Martinouxx]
+description: WorldEdit and FastAsyncWorldEdit support for ItemsAdder custom blocks, schematics included.
+provides: [IA-Edit]
 depend:
   - WorldEdit
   - ItemsAdder
+softdepend:
+  - FastAsyncWorldEdit
+commands:
+  iaedit:
+    description: Better-IA-Edit tools
+    usage: /iaedit <fix|info|reload>
+    permission: iaedit.admin
+permissions:
+  iaedit.admin:
+    description: Use /iaedit
+    default: op
