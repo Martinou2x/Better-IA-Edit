@@ -1,30 +1,19 @@
 package com.epicplayera10.iaedit.command;
 
 import com.epicplayera10.iaedit.IAEdit;
-import com.epicplayera10.iaedit.hook.CustomBlocksFactory;
 import com.epicplayera10.iaedit.hook.process.RegionWriter;
 import com.epicplayera10.iaedit.utils.IACache;
-import com.epicplayera10.iaedit.utils.SpawnerNbt;
 import com.sk89q.worldedit.IncompleteRegionException;
 import com.sk89q.worldedit.WorldEdit;
 import com.sk89q.worldedit.bukkit.BukkitAdapter;
-import com.sk89q.worldedit.math.BlockVector3;
 import com.sk89q.worldedit.regions.Region;
-import com.sk89q.worldedit.world.block.BaseBlock;
-import dev.lone.itemsadder.api.CustomBlock;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.World;
-import org.bukkit.block.Block;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabExecutor;
 import org.bukkit.entity.Player;
-import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -103,86 +92,10 @@ public class IAEditCommand implements TabExecutor {
             sender.sendMessage(plugin.message("selection-too-big", Placeholder.unparsed("max", String.valueOf(max))));
             return;
         }
-        sender.sendMessage(plugin.message("fix-started", Placeholder.unparsed("blocks", String.valueOf(volume))));
-        FixTask task = new FixTask(player, player.getWorld(), region.iterator(), plugin.getConfig().getInt("fix-blocks-per-tick", 50_000));
+        FixTask task = new FixTask(plugin, player, region, () -> running.remove(player.getUniqueId()));
+        sender.sendMessage(plugin.message("fix-started", Placeholder.unparsed("blocks", String.valueOf(volume)),
+                Placeholder.unparsed("chunks", String.valueOf(task.chunkCount()))));
         running.put(player.getUniqueId(), task);
         task.runTaskTimer(plugin, 1L, 1L);
-    }
-
-    private final class FixTask extends BukkitRunnable {
-
-        private final Player player;
-        private final World world;
-        private final com.sk89q.worldedit.world.World weWorld;
-        private final Iterator<BlockVector3> positions;
-        private final int perTick;
-        private int fixed;
-        private int cleaned;
-
-        private FixTask(Player player, World world, Iterator<BlockVector3> positions, int perTick) {
-            this.player = player;
-            this.world = world;
-            this.weWorld = BukkitAdapter.adapt(world);
-            this.positions = positions;
-            this.perTick = Math.max(1000, perTick);
-        }
-
-        @Override
-        public void run() {
-            for (int done = 0; done < perTick && positions.hasNext(); done++) {
-                check(positions.next());
-            }
-            if (positions.hasNext()) return;
-            stop();
-            running.remove(player.getUniqueId());
-            if (player.isOnline()) {
-                player.sendMessage(plugin.message("fix-done",
-                        Placeholder.unparsed("fixed", String.valueOf(fixed)),
-                        Placeholder.unparsed("cleaned", String.valueOf(cleaned))));
-            }
-        }
-
-        private void stop() {
-            if (!isCancelled()) cancel();
-        }
-
-        private void check(BlockVector3 position) {
-            if (position.y() < world.getMinHeight() || position.y() >= world.getMaxHeight()) return;
-            Block block = world.getBlockAt(position.x(), position.y(), position.z());
-            Material type = block.getType();
-            Location location = block.getLocation();
-            boolean customType = IACache.isBaseMaterial(type) || CustomBlocksFactory.isCustomBlockType(BukkitAdapter.asBlockType(type));
-            if (!customType) {
-                if (registeredAt(location) != null) {
-                    RegionWriter.remove(location);
-                    cleaned++;
-                }
-                return;
-            }
-            CustomBlock expected = expected(block, position, type);
-            if (expected == null || expected.getNamespacedID().equals(registeredAt(location))) return;
-            RegionWriter.place(expected, location);
-            fixed++;
-        }
-
-        private CustomBlock expected(Block block, BlockVector3 position, Material type) {
-            try {
-                if (type == Material.SPAWNER) {
-                    BaseBlock full = weWorld.getFullBlock(position);
-                    return SpawnerNbt.read(full.getNbtData());
-                }
-                return IACache.getCustomBlockByBlockData(block.getBlockData());
-            } catch (RuntimeException ignored) {
-                return null;
-            }
-        }
-
-        private String registeredAt(Location location) {
-            try {
-                return CustomBlock.Advanced.getInCustomRegion(location);
-            } catch (RuntimeException ignored) {
-                return null;
-            }
-        }
     }
 }

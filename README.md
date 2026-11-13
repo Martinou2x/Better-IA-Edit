@@ -46,13 +46,16 @@ rotation-fix:
     - paste
 restore-light: true
 region-writes-per-tick: 20000
-fix-blocks-per-tick: 50000
+fix-max-ms-per-tick: 8
+fix-chunks-in-flight: 8
 fix-max-blocks: 0
 ```
 
 - `rotation-fix.commands`: commands whose edit uses the clipboard rotation. Only these edits are corrected, so `//undo` and other edits are never changed.
 - `region-writes-per-tick`: how many ItemsAdder region updates run each tick. Lower it if huge pastes cause lag spikes.
-- `fix-blocks-per-tick` / `fix-max-blocks`: speed and size limit of `/iaedit fix` (`0` = no limit).
+- `fix-max-ms-per-tick`: main-thread time `/iaedit fix` may use per tick. It works chunk by chunk: chunks are loaded asynchronously, the ItemsAdder region of a chunk is read once, and blocks are scanned off the main thread. The budget shrinks automatically when the server is busy (it never pushes a tick past ~45 ms).
+- `fix-chunks-in-flight`: how many chunks are loaded or scanned at the same time.
+- `fix-max-blocks`: size limit of `/iaedit fix` (`0` = no limit).
 - `messages`: every message, in [MiniMessage](https://docs.advntr.dev/minimessage/format.html).
 
 ## Furniture

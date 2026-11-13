@@ -7,7 +7,8 @@ restore-light: true
 
 region-writes-per-tick: 20000
 
-fix-blocks-per-tick: 50000
+fix-max-ms-per-tick: 8
+fix-chunks-in-flight: 8
 fix-max-blocks: 0
 
 standalone:
@@ -22,7 +23,8 @@ messages:
   no-selection: "<prefix> <red>Make a WorldEdit selection first."
   selection-too-big: "<prefix> <red>The selection is too big (more than <max> blocks)."
   fix-running: "<prefix> <red>A repair is already running for you."
-  fix-started: "<prefix> <gray>Scanning <white><blocks></white> blocks..."
+  fix-started: "<prefix> <gray>Scanning <white><blocks></white> blocks in <white><chunks></white> chunks..."
+  fix-progress: "<gray>Repair <white><done></white>/<white><total></white> chunks <dark_gray>· <green><fixed></green> <gray>fixed <dark_gray>· <yellow><cleaned></yellow> <gray>cleaned"
   fix-done: "<prefix> <green>Done: <white><fixed></white> custom blocks registered again, <white><cleaned></white> stale entries removed."
   standalone-info: "<prefix> <gray>Version <white><version></white>, standalone mode (no ItemsAdder): <white><blocks></white> custom blocks and <white><furniture></white> furniture known."
   standalone-usage: "<prefix> <gray>Usage: <white>/<label> info<gray>, <white>/<label> reload"
