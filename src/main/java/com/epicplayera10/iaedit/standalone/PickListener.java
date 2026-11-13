@@ -3,6 +3,9 @@ package com.epicplayera10.iaedit.standalone;
 import io.papermc.paper.event.player.PlayerPickBlockEvent;
 import io.papermc.paper.event.player.PlayerPickEntityEvent;
 import org.bukkit.GameMode;
+import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.block.Block;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.ItemDisplay;
@@ -20,6 +23,7 @@ final class PickListener implements Listener {
 
     private static final int HOTBAR = 9;
     private static final int STORAGE = 36;
+    private static final double SEARCH_RADIUS = 3.0;
 
     private final Supplier<StandaloneData> data;
 
@@ -38,10 +42,34 @@ final class PickListener implements Listener {
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onPickBlock(PlayerPickBlockEvent event) {
-        StandaloneData.CustomBlock custom = data.get().byState(event.getBlock().getBlockData());
+        Block block = event.getBlock();
+        if (block.getType() == Material.BARRIER) {
+            ItemStack furniture = furnitureAround(block);
+            if (furniture == null) return;
+            event.setCancelled(true);
+            pick(event.getPlayer(), furniture);
+            return;
+        }
+        StandaloneData.CustomBlock custom = data.get().byState(block.getBlockData());
         if (custom == null) return;
         event.setCancelled(true);
         pick(event.getPlayer(), custom.item());
+    }
+
+    private ItemStack furnitureAround(Block block) {
+        Location center = block.getLocation().add(0.5, 0.5, 0.5);
+        ItemStack best = null;
+        double bestDistance = Double.MAX_VALUE;
+        for (Entity entity : block.getWorld().getNearbyEntities(center, SEARCH_RADIUS, SEARCH_RADIUS, SEARCH_RADIUS)) {
+            ItemStack furniture = furniture(entity);
+            if (furniture == null) continue;
+            double distance = entity.getLocation().distanceSquared(center);
+            if (distance < bestDistance) {
+                bestDistance = distance;
+                best = furniture;
+            }
+        }
+        return best;
     }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
