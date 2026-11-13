@@ -47,12 +47,12 @@ rotation-fix:
 restore-light: true
 region-writes-per-tick: 20000
 fix-blocks-per-tick: 50000
-fix-max-blocks: 5000000
+fix-max-blocks: 0
 ```
 
 - `rotation-fix.commands`: commands whose edit uses the clipboard rotation. Only these edits are corrected, so `//undo` and other edits are never changed.
 - `region-writes-per-tick`: how many ItemsAdder region updates run each tick. Lower it if huge pastes cause lag spikes.
-- `fix-blocks-per-tick` / `fix-max-blocks`: speed and size limit of `/iaedit fix`.
+- `fix-blocks-per-tick` / `fix-max-blocks`: speed and size limit of `/iaedit fix` (`0` = no limit).
 - `messages`: every message, in [MiniMessage](https://docs.advntr.dev/minimessage/format.html).
 
 ## Furniture

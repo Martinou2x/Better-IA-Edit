@@ -98,8 +98,8 @@ public class IAEditCommand implements TabExecutor {
             return;
         }
         long volume = region.getVolume();
-        long max = plugin.getConfig().getLong("fix-max-blocks", 5_000_000L);
-        if (volume > max) {
+        long max = plugin.getConfig().getLong("fix-max-blocks", 0L);
+        if (max > 0 && volume > max) {
             sender.sendMessage(plugin.message("selection-too-big", Placeholder.unparsed("max", String.valueOf(max))));
             return;
         }

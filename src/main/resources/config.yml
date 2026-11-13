@@ -8,7 +8,7 @@ restore-light: true
 region-writes-per-tick: 20000
 
 fix-blocks-per-tick: 50000
-fix-max-blocks: 5000000
+fix-max-blocks: 0
 
 standalone:
   data-file: "plugins/NPackSyncer/itemsadder-data.json"
