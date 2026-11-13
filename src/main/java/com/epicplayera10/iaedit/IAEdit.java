@@ -1,29 +1,29 @@
 package com.epicplayera10.iaedit;
 
-import com.epicplayera10.iaedit.command.IAEditCommand;
-import com.epicplayera10.iaedit.hook.CustomBlocksFactory;
-import com.epicplayera10.iaedit.hook.listener.WorldEditListener;
-import com.epicplayera10.iaedit.hook.process.PasteTracker;
-import com.epicplayera10.iaedit.hook.process.RegionWriter;
-import com.epicplayera10.iaedit.hook.process.RotationFix;
-import com.epicplayera10.iaedit.listeners.ItemsAdderListener;
-import com.epicplayera10.iaedit.utils.IACache;
-import com.sk89q.worldedit.WorldEdit;
+import com.epicplayera10.iaedit.standalone.StandaloneMode;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import org.bukkit.Bukkit;
-import org.bukkit.command.PluginCommand;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public final class IAEdit extends JavaPlugin {
 
+    public interface Mode {
+        void enable();
+
+        void disable();
+
+        void applyConfig();
+
+        void reloadData();
+    }
+
     private static IAEdit instance;
 
     private boolean faweEnabled;
-    private WorldEditListener worldEditListener;
-    private IAEditCommand command;
+    private Mode mode;
 
     @Override
     public void onEnable() {
@@ -31,41 +31,31 @@ public final class IAEdit extends JavaPlugin {
         saveDefaultConfig();
         faweEnabled = Bukkit.getPluginManager().isPluginEnabled("FastAsyncWorldEdit");
         if (faweEnabled) getLogger().info("FastAsyncWorldEdit detected, using chunk processors.");
-        applyConfig();
-        IACache.initIfLoaded(getLogger());
-
-        Bukkit.getPluginManager().registerEvents(new ItemsAdderListener(), this);
-        worldEditListener = new WorldEditListener();
-        WorldEdit.getInstance().getEventBus().register(worldEditListener);
-        WorldEdit.getInstance().getBlockFactory().register(new CustomBlocksFactory());
-
-        PluginCommand pluginCommand = getCommand("iaedit");
-        if (pluginCommand != null) {
-            command = new IAEditCommand(this);
-            pluginCommand.setExecutor(command);
-            pluginCommand.setTabCompleter(command);
+        if (Bukkit.getPluginManager().getPlugin("ItemsAdder") != null) {
+            mode = new ItemsAdderMode(this);
+        } else {
+            getLogger().info("ItemsAdder not found, running in standalone mode.");
+            mode = new StandaloneMode(this);
         }
+        mode.enable();
     }
 
     @Override
     public void onDisable() {
-        if (command != null) command.cancelAll();
-        if (worldEditListener != null) {
-            try {
-                WorldEdit.getInstance().getEventBus().unregister(worldEditListener);
-            } catch (RuntimeException ignored) {
-                worldEditListener = null;
-            }
-        }
-        RegionWriter.stop();
-        PasteTracker.clear();
+        if (mode != null) mode.disable();
     }
 
     public void applyConfig() {
         reloadConfig();
-        RotationFix.enabled(getConfig().getBoolean("rotation-fix.enabled", true));
-        PasteTracker.commands(getConfig().getStringList("rotation-fix.commands"));
-        RegionWriter.start(this, getConfig().getInt("region-writes-per-tick", 20000), getConfig().getBoolean("restore-light", true));
+        if (mode != null) mode.applyConfig();
+    }
+
+    public void reloadData() {
+        if (mode != null) mode.reloadData();
+    }
+
+    public boolean standalone() {
+        return mode instanceof StandaloneMode;
     }
 
     public Component message(String key, TagResolver... resolvers) {

@@ -17,6 +17,16 @@ It is a drop-in replacement: it declares `provides: [IA-Edit]`, so remove the or
 | Worlds already broken by the old plugin stay broken | `/iaedit fix` registers the custom blocks of a selection again |
 | bStats | Removed |
 
+## Standalone mode (no ItemsAdder)
+
+On a server that cannot run ItemsAdder, Better-IA-Edit switches to a standalone mode. Schematics pasted with WorldEdit keep their custom blocks, and the resource pack (sent by NPackSyncer) displays them. The plugin reads `standalone.data-file` (default `plugins/NPackSyncer/itemsadder-data.json`, exported by NPackSyncer from a server that has ItemsAdder) and then:
+
+- freezes note blocks, mushroom blocks, chorus plants and tripwire so custom blocks never change state (also set the four `block-updates.disable-*-updates` options to `true` in `config/paper-global.yml`, the plugin warns if they are off);
+- drops the custom item when a custom block is broken (or blown up), and places the custom block back when that item is used;
+- protects ItemsAdder furniture (armor stands and item frames showing a furniture item) from damage, explosions and manipulation; sneak and hit it in creative to remove it.
+
+`/iaedit info` and `/iaedit reload` work in this mode.
+
 ## Commands
 
 Permission: `iaedit.admin` (op by default).

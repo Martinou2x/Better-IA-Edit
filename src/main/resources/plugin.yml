@@ -7,8 +7,8 @@ description: WorldEdit and FastAsyncWorldEdit support for ItemsAdder custom bloc
 provides: [IA-Edit]
 depend:
   - WorldEdit
-  - ItemsAdder
 softdepend:
+  - ItemsAdder
   - FastAsyncWorldEdit
 commands:
   iaedit:

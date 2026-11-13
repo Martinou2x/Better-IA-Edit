@@ -5,7 +5,6 @@ import dev.lone.itemsadder.api.ItemsAdder;
 import org.bukkit.Material;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Collections;
@@ -96,24 +95,14 @@ public final class IACache {
 
     @Nullable
     public static String itemKey(ItemStack item) {
-        if (item == null) return null;
-        String material = item.getType().getKey().toString();
-        ItemMeta meta = item.getItemMeta();
-        if (meta == null) return null;
-        if (meta.hasCustomModelData()) return itemKey(material, meta.getCustomModelData());
-        try {
-            if (meta.hasItemModel() && meta.getItemModel() != null) return itemKey(material, meta.getItemModel().toString());
-        } catch (NoSuchMethodError ignored) {
-            return null;
-        }
-        return null;
+        return ItemKeys.of(item);
     }
 
     public static String itemKey(String material, int customModelData) {
-        return material + "#" + customModelData;
+        return ItemKeys.of(material, customModelData);
     }
 
     public static String itemKey(String material, String itemModel) {
-        return material + "@" + itemModel;
+        return ItemKeys.of(material, itemModel);
     }
 }

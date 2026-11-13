@@ -10,6 +10,9 @@ region-writes-per-tick: 20000
 fix-blocks-per-tick: 50000
 fix-max-blocks: 5000000
 
+standalone:
+  data-file: "plugins/NPackSyncer/itemsadder-data.json"
+
 messages:
   prefix: "<dark_gray>[</dark_gray><gradient:#ff9cb4:#c39bff>Better-IA-Edit</gradient><dark_gray>]</dark_gray>"
   usage: "<prefix> <gray>Usage: <white>/<label> fix<gray>, <white>/<label> info<gray>, <white>/<label> reload"
@@ -21,3 +24,5 @@ messages:
   fix-running: "<prefix> <red>A repair is already running for you."
   fix-started: "<prefix> <gray>Scanning <white><blocks></white> blocks..."
   fix-done: "<prefix> <green>Done: <white><fixed></white> custom blocks registered again, <white><cleaned></white> stale entries removed."
+  standalone-info: "<prefix> <gray>Version <white><version></white>, standalone mode (no ItemsAdder): <white><blocks></white> custom blocks and <white><furniture></white> furniture known."
+  standalone-usage: "<prefix> <gray>Usage: <white>/<label> info<gray>, <white>/<label> reload"
