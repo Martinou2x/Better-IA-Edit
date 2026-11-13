@@ -26,9 +26,11 @@ final class PickListener implements Listener {
     private static final double SEARCH_RADIUS = 3.0;
 
     private final Supplier<StandaloneData> data;
+    private final java.util.function.Function<Entity, Entity> hitboxOwner;
 
-    PickListener(Supplier<StandaloneData> data) {
+    PickListener(Supplier<StandaloneData> data, java.util.function.Function<Entity, Entity> hitboxOwner) {
         this.data = data;
+        this.hitboxOwner = hitboxOwner;
     }
 
     static boolean available() {
@@ -74,7 +76,8 @@ final class PickListener implements Listener {
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onPickEntity(PlayerPickEntityEvent event) {
-        ItemStack furniture = furniture(event.getEntity());
+        Entity owner = hitboxOwner.apply(event.getEntity());
+        ItemStack furniture = furniture(owner != null ? owner : event.getEntity());
         if (furniture == null) return;
         event.setCancelled(true);
         pick(event.getPlayer(), furniture);

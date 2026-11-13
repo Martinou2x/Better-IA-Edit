@@ -6,7 +6,13 @@ import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import org.bukkit.Bukkit;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 
 public final class IAEdit extends JavaPlugin {
 
@@ -24,11 +30,13 @@ public final class IAEdit extends JavaPlugin {
 
     private boolean faweEnabled;
     private Mode mode;
+    private YamlConfiguration messages = new YamlConfiguration();
 
     @Override
     public void onEnable() {
         instance = this;
         saveDefaultConfig();
+        loadMessages();
         faweEnabled = Bukkit.getPluginManager().isPluginEnabled("FastAsyncWorldEdit");
         if (faweEnabled) getLogger().info("FastAsyncWorldEdit detected, using chunk processors.");
         if (Bukkit.getPluginManager().getPlugin("ItemsAdder") != null) {
@@ -58,9 +66,17 @@ public final class IAEdit extends JavaPlugin {
         return mode instanceof StandaloneMode;
     }
 
+    private void loadMessages() {
+        try (InputStream in = getResource("messages.yml")) {
+            if (in != null) messages = YamlConfiguration.loadConfiguration(new InputStreamReader(in, StandardCharsets.UTF_8));
+        } catch (IOException failure) {
+            getLogger().warning("Could not read the bundled messages: " + failure.getMessage());
+        }
+    }
+
     public Component message(String key, TagResolver... resolvers) {
-        String prefix = getConfig().getString("messages.prefix", "");
-        String raw = getConfig().getString("messages." + key, key);
+        String prefix = messages.getString("prefix", "");
+        String raw = messages.getString(key, key);
         return MiniMessage.miniMessage().deserialize(raw, TagResolver.resolver(TagResolver.resolver(resolvers), Placeholder.parsed("prefix", prefix)));
     }
 

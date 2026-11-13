@@ -28,6 +28,7 @@ public final class StandaloneMode implements IAEdit.Mode, TabExecutor {
 
     private final IAEdit plugin;
     private volatile StandaloneData data = StandaloneData.EMPTY;
+    private FurnitureHitboxes hitboxes;
 
     public StandaloneMode(IAEdit plugin) {
         this.plugin = plugin;
@@ -38,7 +39,10 @@ public final class StandaloneMode implements IAEdit.Mode, TabExecutor {
         reloadData();
         Bukkit.getPluginManager().registerEvents(new StandaloneListener(() -> data), plugin);
         Bukkit.getPluginManager().registerEvents(new ItemsMenu.Clicks(), plugin);
-        if (PickListener.available()) Bukkit.getPluginManager().registerEvents(new PickListener(() -> data), plugin);
+        hitboxes = new FurnitureHitboxes(plugin, () -> data);
+        Bukkit.getPluginManager().registerEvents(hitboxes, plugin);
+        if (PickListener.available()) Bukkit.getPluginManager().registerEvents(new PickListener(() -> data, hitboxes::furnitureOf), plugin);
+        hitboxes.scanLoaded();
         PluginCommand command = plugin.getCommand("iaedit");
         if (command != null) {
             command.setExecutor(this);
@@ -49,6 +53,7 @@ public final class StandaloneMode implements IAEdit.Mode, TabExecutor {
 
     @Override
     public void disable() {
+        if (hitboxes != null) hitboxes.removeAll();
         data = StandaloneData.EMPTY;
     }
 
@@ -67,6 +72,7 @@ public final class StandaloneMode implements IAEdit.Mode, TabExecutor {
         }
         try {
             data = StandaloneData.load(file);
+            if (hitboxes != null) hitboxes.scanLoaded();
             plugin.getLogger().info("Loaded " + data.blocks() + " custom blocks and " + data.furnitureCount() + " furniture from " + file);
         } catch (Exception failure) {
             plugin.getLogger().log(Level.WARNING, "Could not read " + file, failure);

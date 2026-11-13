@@ -59,7 +59,6 @@ fix-max-blocks: 0
 - `fix-max-ms-per-tick`: main-thread time `/iaedit fix` may use per tick. It works chunk by chunk: chunks are loaded asynchronously, the ItemsAdder region of a chunk is read once, and blocks are scanned off the main thread. The budget shrinks automatically when the server is busy (it never pushes a tick past ~45 ms).
 - `fix-chunks-in-flight`: how many chunks are loaded or scanned at the same time.
 - `fix-max-blocks`: size limit of `/iaedit fix` (`0` = no limit).
-- `messages`: every message, in [MiniMessage](https://docs.advntr.dev/minimessage/format.html).
 
 ## Furniture
 

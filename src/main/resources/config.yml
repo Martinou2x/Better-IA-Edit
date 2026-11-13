@@ -13,23 +13,3 @@ fix-max-blocks: 0
 
 standalone:
   data-file: "plugins/NPackSyncer/itemsadder-data.json"
-
-messages:
-  prefix: "<dark_gray>[</dark_gray><gradient:#ff9cb4:#c39bff>Better-IA-Edit</gradient><dark_gray>]</dark_gray>"
-  usage: "<prefix> <gray>Usage: <white>/<label> fix<gray>, <white>/<label> info<gray>, <white>/<label> reload"
-  info: "<prefix> <gray>Version <white><version></white>, <white><blocks></white> custom blocks cached, <white><pending></white> pending region writes, engine <white><engine></white>."
-  reloaded: "<prefix> <green>Configuration reloaded, <white><blocks></white> custom blocks cached."
-  players-only: "<prefix> <red>Only players can use this command."
-  no-selection: "<prefix> <red>Make a WorldEdit selection first."
-  selection-too-big: "<prefix> <red>The selection is too big (more than <max> blocks)."
-  fix-running: "<prefix> <red>A repair is already running for you."
-  fix-started: "<prefix> <gray>Scanning <white><blocks></white> blocks in <white><chunks></white> chunks..."
-  fix-progress: "<gray>Repair <white><done></white>/<white><total></white> chunks <dark_gray>· <green><fixed></green> <gray>fixed <dark_gray>· <yellow><cleaned></yellow> <gray>cleaned"
-  fix-done: "<prefix> <green>Done: <white><fixed></white> custom blocks registered again, <white><cleaned></white> stale entries removed."
-  standalone-info: "<prefix> <gray>Version <white><version></white>, standalone mode (no ItemsAdder): <white><blocks></white> custom blocks and <white><furniture></white> furniture known."
-  standalone-usage: "<prefix> <gray>Usage: <white>/<label> info<gray>, <white>/<label> items [search]<gray>, <white>/<label> reload"
-  items-title: "<dark_gray>Custom items"
-  items-previous: "<yellow>Previous page"
-  items-next: "<yellow>Next page"
-  items-info: "<white>Page <page>/<pages> <gray>(<count> items) <dark_gray>· <gray>click 1, shift-click a stack, middle click (creative) on the cursor"
-  items-empty: "<prefix> <red>No custom item found. Run /packsyncer, then /iaedit reload."
