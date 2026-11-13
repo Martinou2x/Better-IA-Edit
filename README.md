@@ -25,7 +25,10 @@ On a server that cannot run ItemsAdder, Better-IA-Edit switches to a standalone 
 - drops the custom item when a custom block is broken (or blown up), and places the custom block back when that item is used;
 - protects ItemsAdder furniture (armor stands and item frames showing a furniture item) from damage, explosions and manipulation; sneak and hit it in creative to remove it.
 
-`/iaedit info` and `/iaedit reload` work in this mode.
+- picking a custom block or a piece of furniture (middle click) gives its custom item, like with ItemsAdder;
+- holding a custom block item and right-clicking a chest, a door or another interactive block uses that block; sneak to place the custom block against it instead.
+
+`/iaedit items [search]` opens a menu with every custom item: click for one, shift-click for a full stack, middle click (creative) to put a stack on the cursor. `/iaedit info` and `/iaedit reload` also work in this mode.
 
 ## Commands
 

@@ -37,6 +37,8 @@ public final class StandaloneMode implements IAEdit.Mode, TabExecutor {
     public void enable() {
         reloadData();
         Bukkit.getPluginManager().registerEvents(new StandaloneListener(() -> data), plugin);
+        Bukkit.getPluginManager().registerEvents(new ItemsMenu.Clicks(), plugin);
+        if (PickListener.available()) Bukkit.getPluginManager().registerEvents(new PickListener(() -> data), plugin);
         PluginCommand command = plugin.getCommand("iaedit");
         if (command != null) {
             command.setExecutor(this);
@@ -91,6 +93,13 @@ public final class StandaloneMode implements IAEdit.Mode, TabExecutor {
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
         String sub = args.length == 0 ? "info" : args[0].toLowerCase(Locale.ROOT);
         switch (sub) {
+            case "items" -> {
+                if (!(sender instanceof org.bukkit.entity.Player player)) {
+                    sender.sendMessage(plugin.message("players-only"));
+                    return true;
+                }
+                ItemsMenu.open(plugin, player, data, args.length > 1 ? args[1] : null, 0);
+            }
             case "reload" -> {
                 plugin.applyConfig();
                 sender.sendMessage(plugin.message("reloaded", Placeholder.unparsed("blocks", String.valueOf(data.blocks()))));
@@ -107,6 +116,6 @@ public final class StandaloneMode implements IAEdit.Mode, TabExecutor {
     @Override
     public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
         if (args.length != 1) return List.of();
-        return List.of("info", "reload").stream().filter(name -> name.startsWith(args[0].toLowerCase(Locale.ROOT))).toList();
+        return List.of("info", "items", "reload").stream().filter(name -> name.startsWith(args[0].toLowerCase(Locale.ROOT))).toList();
     }
 }

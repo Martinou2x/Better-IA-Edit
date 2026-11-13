@@ -18,6 +18,8 @@ import java.util.Base64;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashMap;
+import java.util.List;
+import java.util.TreeMap;
 import java.util.Map;
 import java.util.Set;
 
@@ -25,19 +27,23 @@ final class StandaloneData {
 
     record CustomBlock(String id, BlockData state, ItemStack item) {}
 
-    static final StandaloneData EMPTY = new StandaloneData(Map.of(), Map.of(), Set.of(), Map.of());
+    record CustomItem(String id, ItemStack item) {}
+
+    static final StandaloneData EMPTY = new StandaloneData(Map.of(), Map.of(), Set.of(), Map.of(), List.of());
 
     private final Map<BlockData, CustomBlock> byState;
     private final Map<String, CustomBlock> byItem;
     private final Set<Material> baseMaterials;
     private final Map<String, ItemStack> furniture;
+    private final List<CustomItem> items;
 
     private StandaloneData(Map<BlockData, CustomBlock> byState, Map<String, CustomBlock> byItem,
-                           Set<Material> baseMaterials, Map<String, ItemStack> furniture) {
+                           Set<Material> baseMaterials, Map<String, ItemStack> furniture, List<CustomItem> items) {
         this.byState = byState;
         this.byItem = byItem;
         this.baseMaterials = baseMaterials;
         this.furniture = furniture;
+        this.items = items;
     }
 
     static StandaloneData load(Path file) throws IOException {
@@ -75,8 +81,21 @@ final class StandaloneData {
                 }
             }
         }
+        Map<String, CustomItem> items = new TreeMap<>();
+        if (root.has("items")) {
+            for (JsonElement element : root.getAsJsonArray("items")) {
+                JsonObject entry = element.getAsJsonObject();
+                try {
+                    String id = entry.get("id").getAsString();
+                    items.put(id, new CustomItem(id, ItemStack.deserializeBytes(Base64.getDecoder().decode(entry.get("item").getAsString()))));
+                } catch (RuntimeException ignored) {
+                    continue;
+                }
+            }
+        }
+        for (CustomBlock block : byState.values()) items.putIfAbsent(block.id(), new CustomItem(block.id(), block.item()));
         return new StandaloneData(Collections.unmodifiableMap(byState), Collections.unmodifiableMap(byItem),
-                Collections.unmodifiableSet(baseMaterials), Collections.unmodifiableMap(furniture));
+                Collections.unmodifiableSet(baseMaterials), Collections.unmodifiableMap(furniture), List.copyOf(items.values()));
     }
 
     @Nullable
@@ -98,6 +117,10 @@ final class StandaloneData {
     ItemStack furniture(ItemStack displayed) {
         String key = ItemKeys.of(displayed);
         return key == null ? null : furniture.get(key);
+    }
+
+    List<CustomItem> items() {
+        return items;
     }
 
     int blocks() {

@@ -13,7 +13,7 @@ softdepend:
 commands:
   iaedit:
     description: Better-IA-Edit tools
-    usage: /iaedit <fix|info|reload>
+    usage: /iaedit <fix|info|items|reload>
     permission: iaedit.admin
 permissions:
   iaedit.admin:

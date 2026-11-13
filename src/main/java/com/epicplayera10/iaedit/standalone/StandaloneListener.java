@@ -63,6 +63,10 @@ final class StandaloneListener implements Listener {
         StandaloneData current = data.get();
         ItemStack item = event.getItem();
         StandaloneData.CustomBlock custom = item == null ? null : current.byItem(item);
+        Block target = event.getClickedBlock();
+        if (custom != null && !event.getPlayer().isSneaking() && target.getType().isInteractable() && !current.isBaseMaterial(target.getType())) {
+            return;
+        }
         if (custom != null) {
             event.setCancelled(true);
             place(event.getPlayer(), event.getHand(), item, custom, event.getClickedBlock(), event.getBlockFace());
